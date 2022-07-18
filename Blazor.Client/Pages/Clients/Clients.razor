@@ -1,0 +1,86 @@
+﻿@page "/clients"
+@using Blazor.Client.Pages.Clients.Components
+@inject ClientDataService clientDataService
+@implements IDisposable
+
+<h3>Clientes</h3>
+<div class="d-flex flex-column">
+    <div>
+        <button @onclick="ShowAddClient" class="btn btn-info float-end">Añadir cliente</button>
+
+    </div>
+    @if(clientDataService.sAddClient)
+    {
+        <AddClient />
+    }
+</div>
+
+
+@if (clientList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    if (clientList.Count() > 0)
+    {
+        <b>Si tiene @clientList.Count()</b>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Correo</th>
+                    <th>Teléfono</th>
+                    <th>Fecha de creacion</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in clientList)
+                {
+                    <tr>
+                        <td>
+                            @item.Name
+                        </td>
+                        <td>@item.Email</td>
+                        <td>@item.Phone</td>
+                        <td>@item.CreatedAt.ToShortDateString()</td>
+                        <td>
+                            <button class="btn btn-danger">X</button>
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+
+    }
+    else
+    {
+        <p>No tiene elementos</p>
+    }
+}
+
+@code {
+
+    private List<ClientResponseDto>? clientList { get; set; }
+    private bool showClientForm = false;
+    protected override void OnInitialized()
+    {
+
+        clientList = clientDataService.ListClients;
+        clientDataService.OnChange += StateHasChanged;
+
+        clientDataService.GetClients();
+    }
+
+    private void ShowAddClient()
+    {
+       clientDataService.ShowAddClient();
+    }
+
+    public void Dispose()
+    {
+        clientDataService.OnChange -= StateHasChanged;
+    }
+}
